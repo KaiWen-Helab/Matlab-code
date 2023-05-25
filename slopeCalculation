@@ -1,0 +1,43 @@
+function kSlope=slopeCalculation(channel,startPoint,endPoint,calcuTime,fs)
+
+% 用于计算指定通道的数据paired pulse slopes (slp1,slp2)...
+% 输入函数需要指定通道 ...
+%  已经在每次可能需要更改的地方注释了,为 @#$@#$ ...
+% Created by BF 2016,05,30 ...
+% Modified by hkw on 09/28/18
+clc;
+filePath=' \'; % 数据路径  @#$@#$...
+fileName=' .mat'; % 数据文件的名称 @#$@#$ 此处的文件名可以在Current Folder看到...
+load([filePath,fileName]); % load 数据 ....
+dataName=data; % 改成指定的数据名称 双击打开数据可以看到一个n*5的matrix里面有数据的名称 ...就是dataName @#$@#$ ...
+% if ~exist( 'channel', 'var')||~exist( 'startPoint', 'var')||~exist( 'endPoint', 'var')
+%     disp('Please enter the input variables ...');
+%     return;
+% end
+plot(dataName(:,channel))
+if channel>5
+    disp('There are only 5 channels ...');
+    return;
+end
+
+
+dataLength=size(dataName(startPoint:end,channel),1); % 数据的总长度 ...
+caluIndex=floor(dataLength/fs);
+%caluIndex=floor(dataLength/((endPoint-startPoint+1)+fs*calcuTime)); % 计算的次数 ...
+
+if caluIndex<1
+    disp('No enough data points ...');
+    return;
+end
+
+% startPoint=1;% 计算slope的起始点
+for i=1:caluIndex    
+    deltaX=0.0001*(endPoint-startPoint);
+    deltaY1=dataName(endPoint,channel)-dataName(startPoint,channel);
+    deltaY2=dataName((endPoint+250),channel)-dataName((startPoint+250),channel);
+    slp1(i,1)=abs(deltaY1)/deltaX; % k=dy/dx=Δy/Δx
+    slp2(i,1)=abs(deltaY2)/deltaX
+    startPoint=startPoint+(fs*calcuTime);
+    endPoint=endPoint+(fs*calcuTime);
+end
+kSlope =[slp1,slp2]  
